@@ -14,15 +14,23 @@ SemanticStack = {NewCell nil}
 declare StatementList
 %StatementList = [[nop] [nop] [nop]]
 %StatementList = [[nop] [localvar ident(x) [localvar ident(y) [nop]]]]
-StatementList = [localvar ident(x)
+StatementList = [[nop] [localvar ident(x)
        [localvar ident(y)
               [localvar ident(x)
-	       [nop]]]]
+	       [nop]]]]]
 
 declare InitialEnvironment
 InitialEnvironment = {Dictionary.new}
 
 SemanticStack := {List.append [semanticStatement(StatementList InitialEnvironment)] (@SemanticStack)}
+
+%Stores next free name in SAS
+declare Count
+Count = {NewCell 0}
+
+declare SAS
+SAS = {Dictionary.new}
+
 
 declare Execution
 fun {Execution}
@@ -67,8 +75,13 @@ fun {Execution}
 	 {Browse X}
 	 
 	 %Put X to the Environment
-	 {Dictionary.put Environment X mu1}
+	 {Dictionary.put Environment X @Count}
+	 
 
+	 %Add Key for X to SAS
+	 {Dictionary.put SAS @Count nil}
+	 Count := @Count+1
+	  
 	 %Push S to the SemanticStack with new environment
 	 SemanticStack := {List.append [semanticStatement(S Environment)] (@SemanticStack)}
 
