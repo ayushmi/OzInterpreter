@@ -67,7 +67,7 @@ fun {Execution}
 	 {Browse X}
 	 
 	 %Put X to the Environment
-	 %{Dictionary.put Environment X}
+	 {Dictionary.put Environment X mu1}
 
 	 %Push S to the SemanticStack with new environment
 	 SemanticStack := {List.append [semanticStatement(S Environment)] (@SemanticStack)}
