@@ -32,3 +32,17 @@ A record. The features are the variables. The feature values are the SAS keys. (
 1.2 *Procedures*
 
 1.2.1 __{BindValueToKeyInSAS Key Val}__ : If key is unbound (value is part of an equivalence set) bind Val to a key in the SAS. Should raise an exception alreadyAssigned(Key Val CurrentValue) if key is bound.
+
+1.2.2 __{BindRefToKeyInSAS Key RefKey}__ : If the key is unbound, then bind a reference to another key to a key in the SAS.
+
+1.3 *Functions*
+
+1.3.1 __{AddKeyToSAS}__ : Add a key to Single Assignment Store. This will return the key that you can associate with your identifier and later assign a value to.
+
+1.3.2 __{RetrieveFromSAS Key}__ : Retrieve a value from the single assignment store. This will raise an exception if the key is missing from the SAS. For unbound keys, this will return equivalence(Key) - this is guaranteed to be same for two keys in the same equivalence set.
+
+2. In Unify.oz we already have the following procedure:
+
+2.1 __{Unify Expression1 Expression2 Environment}__ : Unify Expression1 and Expression2 given the mappings in the Environment. Unification Error will be raise an incompatibleTypes exception.
+
+
