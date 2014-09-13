@@ -1,8 +1,0 @@
-In this Assignment for Priciples of Programming Language Course, we implemented a simple interpreter for the declarative sequential model discussed in the second chapter of book.
-
-The assignment is implemented in oz.
-
-The code assumes that the input is given in the Abstract Syntax Tree format.
-The program outputs the sequence of the execution states during the execution of the statement.
-
-
