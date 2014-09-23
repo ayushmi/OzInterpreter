@@ -6,6 +6,9 @@
 %          Harshvardhan Sharma
 %=================================
 
+\insert 'SingleAssignmentStore.oz'
+\insert 'Unify.oz'
+
 
 %SemanticStack is a list of pairs of Statement and Environment.
 declare 
@@ -19,18 +22,15 @@ StatementList = [[nop] [localvar ident(x)
               [localvar ident(x)
 	       [nop]]]]]
 
+%declare InitialEnvironment
+%InitialEnvironment = {Dictionary.new}
+
+%Environment is a record with variables as features and SAS keys as feature values.
+%Initially environment is empty.
 declare InitialEnvironment
-InitialEnvironment = {Dictionary.new}
+InitialEnvironment = environment()
 
 SemanticStack := {List.append [semanticStatement(StatementList InitialEnvironment)] (@SemanticStack)}
-
-%Stores next free name in SAS
-declare Count
-Count = {NewCell 0}
-
-declare SAS
-SAS = {Dictionary.new}
-
 
 declare Execution
 fun {Execution}
@@ -70,27 +70,25 @@ fun {Execution}
 	 %Continue with execution
 	 {Execution}
 
+	 %PART 2
       [] [localvar ident(X) S] then
 
 	 {Browse X}
 	 
 	 %Put X to the Environment
-	 {Dictionary.put Environment X @Count}
-	 
-
-	 %Add Key for X to SAS
-	 {Dictionary.put SAS @Count nil}
-	 Count := @Count+1
-	  
-	 %Push S to the SemanticStack with new environment
-	 SemanticStack := {List.append [semanticStatement(S Environment)] (@SemanticStack)}
+	 % and Add Key for X to SAS
+	 % and Push S to the SemanticStack with new environment
+	 SemanticStack := {List.append [semanticStatement(S {Adjoin Environment environment(X:{AddKeyToSAS})} )] (@SemanticStack)}
 
 	 %Continue with Execution
 	 {Execution}
+
+	 %PART 3
+      [] [bind ident(X) ident(Y)] then
+	 
 	 
       end
    end
 end
-
 
 {Browse {Execution}}
