@@ -9,7 +9,6 @@
 \insert 'SingleAssignmentStore.oz'
 \insert 'Unify.oz'
 
-
 %SemanticStack is a list of pairs of Statement and Environment.
 declare 
 SemanticStack = {NewCell nil}
@@ -85,6 +84,25 @@ fun {Execution}
 
 	 %PART 3
       [] [bind ident(X) ident(Y)] then
+
+	 %Call Unify
+	 {Unify ident(X) ident(Y) E}
+
+	 %Continue with execution
+	 {Execution}
+
+	 %Part 4a
+
+	 %Part 4b
+
+	 %Part 5
+      [] [bind ident(X) V] then
+	 
+	 %Part 6
+      [] [conditional ident(X) S1 S2] then
+
+	 %Part 7
+      [] [match ident(X) P1 S1 S2] then
 	 
 	 
       end
