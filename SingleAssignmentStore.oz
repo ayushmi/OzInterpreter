@@ -12,7 +12,9 @@
 
 %SAS - keys are numbers and values are oz structures.
 declare SAS
+declare SASCounter
 SAS = {Dictionary.new}
+SASCounter = {Cell.new 0}
 
 %Environment - Record with features as variables. Feature values as SAS keys.
 declare InitialEnvironment
@@ -32,8 +34,15 @@ end
 %================
 declare
 fun {AddKeyToSAS}
+   local CurrentCounter in
+      {Cell.access SASCounter CurrentCounter} 
+      {Dictionary.put SAS CurrentCounter "NaN"}
+      {Cell.assign SASCounter CurrentCounter + 1}
+      CurrentCounter + 1
+   end
 end
 
 declare
 fun {RetrieveFromSAS Key}
 end
+
