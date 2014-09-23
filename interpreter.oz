@@ -91,20 +91,27 @@ fun {Execution}
 	 %Continue with execution
 	 {Execution}
 
-	 %Part 4a (need to think what sir is telling about numbers)
-      [] [record literal(a) Rest]
-	 
-	 
-	 %Part 4b
-
-	 %Part 5
+         %Part 5
       [] [bind ident(X) V] then
 	 {Unify ident(X) V}
 	 {Execution}
 	 
 	 %Part 6
       [] [conditional ident(X) S1 S2] then
-	 
+	 local Val in
+	    Val = {RetreiveFromSAS X}
+	    if Val == literal(t) then
+	       SemanticStack := {List.append [semanticStatement(S1 E)] (@SemanticStack)}
+	    else
+	       if Val == literal(f) then
+		    SemanticStack := {List.append [semanticStatement(S2 E)] (@SemanticStack)}
+	       else
+		  {Browse error} %Probably need to raise an exception here
+	       end
+	    end
+	 end
+	 {Execution}
+
 	 
 	 %Part 7
       [] [match ident(X) P1 S1 S2] then
