@@ -23,7 +23,7 @@ IntialEnvironment = environment()
 %================
 %Procedures
 %================
-proc {BindValueToKeyInSAS Key Val}
+%proc {BindValueToKeyInSAS Key Val}
 end
 
 proc {BindRefToKeysInSAS Key RefKey}
