@@ -91,16 +91,21 @@ fun {Execution}
 	 %Continue with execution
 	 {Execution}
 
-	 %Part 4a
-
+	 %Part 4a (need to think what sir is telling about numbers)
+      [] [record literal(a) Rest]
+	 
+	 
 	 %Part 4b
 
 	 %Part 5
       [] [bind ident(X) V] then
+	 {Unify ident(X) V}
+	 {Execution}
 	 
 	 %Part 6
       [] [conditional ident(X) S1 S2] then
-
+	 
+	 
 	 %Part 7
       [] [match ident(X) P1 S1 S2] then
 	 
