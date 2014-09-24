@@ -46,10 +46,12 @@ declare
 fun {RetrieveFromSAS Key}
    local KeyVal in
       {Dictionary.get SAS Key KeyVal}
-      KeyVal
+      if KeyVal == nil then equivalence(Key)
+      else KeyVal end
+      
    end
 end
 
 {Browse {AddKeyToSAS}}
-{Browse try {RetrieveFromSAS 2} catch X then X end}
+{Browse try {RetrieveFromSAS 0} catch X then X end}
 
