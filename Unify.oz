@@ -15,7 +15,7 @@
 %==============
 
 \insert 'SingleAssignmentStore.oz'
-\insert 'ProcessRecords.oz'
+%\insert 'ProcessRecords.oz'
 
 declare
 proc {Unify Exp1 Exp2 Env}

@@ -9,7 +9,6 @@
 \insert 'SingleAssignmentStore.oz'
 \insert 'Unify.oz'
 
-
 %SemanticStack is a list of pairs of Statement and Environment.
 declare 
 SemanticStack = {NewCell nil}
@@ -85,6 +84,37 @@ fun {Execution}
 
 	 %PART 3
       [] [bind ident(X) ident(Y)] then
+
+	 %Call Unify
+	 {Unify ident(X) ident(Y) E}
+
+	 %Continue with execution
+	 {Execution}
+
+         %Part 5
+      [] [bind ident(X) V] then
+	 {Unify ident(X) V}
+	 {Execution}
+	 
+	 %Part 6
+      [] [conditional ident(X) S1 S2] then
+	 local Val in
+	    Val = {RetreiveFromSAS X}
+	    if Val == literal(t) then
+	       SemanticStack := {List.append [semanticStatement(S1 E)] (@SemanticStack)}
+	    else
+	       if Val == literal(f) then
+		    SemanticStack := {List.append [semanticStatement(S2 E)] (@SemanticStack)}
+	       else
+		  {Browse error} %Probably need to raise an exception here
+	       end
+	    end
+	 end
+	 {Execution}
+
+	 
+	 %Part 7
+      [] [match ident(X) P1 S1 S2] then
 	 
 	 
       end
