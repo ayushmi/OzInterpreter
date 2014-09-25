@@ -23,15 +23,17 @@ IntialEnvironment = environment()
 %================
 %Procedures
 %================
-%proc {BindValueToKeyInSAS Key Val}
-<<<<<<< HEAD
+proc {BindValueToKeyInSAS Key Val}
+    if {Dictionary.get SAS Key} == equivalence(Key) then
+        {Dictionary.put SAS Key Val}
+    else
+        raise alreadyAssigned(Key Val {Dictionary.get SAS Key}) end
+    end
 end
-=======
-%end
->>>>>>> 761aafc00329ea0ebd504c80de1a6c14d47ee1aa
 
-%proc {BindRefToKeysInSAS Key RefKey}
-%end
+proc {BindRefToKeyInSAS Key RefKey}
+    {Dictionary.put Key reference(RefKey)}
+end
 
 %================
 %Functions
@@ -40,7 +42,7 @@ declare
 fun {AddKeyToSAS}
    local CurrentCounter in
       {Cell.access SASCounter CurrentCounter} 
-      {Dictionary.put SAS CurrentCounter nil}
+      {Dictionary.put SAS CurrentCounter equivalence(Key)}
       {Cell.assign SASCounter CurrentCounter + 1}
       CurrentCounter + 1
    end
