@@ -52,9 +52,9 @@ declare
 fun {RetrieveFromSAS Key}
    local KeyVal in
       {Dictionary.get SAS Key KeyVal}
-      if KeyVal == nil then equivalence(Key)
+      case KeyVal
+      of reference(KeyVal2) then {RetrieveFromSAS KeyVal2}
       else KeyVal end
-      
    end
 end
 
