@@ -150,7 +150,7 @@ fun {Execution}
 	 %Part 6
       [] [conditional ident(X) S1 S2] then
 	 local Val in
-	    Val = {RetreiveFromSAS X}
+	    Val = {RetrieveFromSAS X}
 	    if Val == literal(t) then
 	       SemanticStack := {List.append [semanticStatement(S1 E)] (@SemanticStack)}
 	    else
@@ -164,6 +164,26 @@ fun {Execution}
 	 {Execution}
 
 	 
+      [] [match ident(X) P1 S1 S2] then
+         try
+            local NewEnv AddNewIdents in
+                fun {AddNewIdents Xs Env}
+                    case Xs
+                    of nil then Env
+                    [] X|Xr then {AddNewIdents Xr {Adjoin Env env(X.2.1:{AddKeyToSAS})}} end
+                end
+                NewEnv = {AddNewIdents P1.2.2.1 E}
+                {Unify ident(X) P1 NewEnv}
+	        SemanticStack := {List.append [semanticStatement(S1 NewEnv)] (@SemanticStack)}
+            end
+         catch
+	    SemanticStack := {List.append [semanticStatement(S2 E)] (@SemanticStack)}
+         end
+         {Execution}
+
+
+         end
+      end  
 	 %Part 7
       [] [match ident(X) P1 S1 S2] then
             
