@@ -32,6 +32,45 @@ InitialEnvironment = environment()
 SemanticStack := {List.append [semanticStatement(StatementList InitialEnvironment)] (@SemanticStack)}
 
 declare Execution
+declare FindFreeVars
+declare SubLists
+
+fun {FindUnion L1 L2}
+   local FindUnionHelper in
+      fun {FindUnionHelper L1 L2}  
+         case L1
+         of nil then L2
+         [] X|Xr then
+            if {List.member X L2} {FindUnion Xr L2}
+            else {FindUnion Xr X|L2}
+            end
+         end
+      end
+      {FindUnionHelper {FindUnionHelper L1 L2} nil}
+   end
+end
+
+fun {SubLists L1 L2} % Subtract L1 from L2
+   case L1
+   of nil then L2
+   [] Li|Lr then {SubLists Lr {List.subtract L2 Li}}
+   end
+end
+
+fun {FindFreeVars S }
+   case S
+   of S1|S2 then {FindUnion {FindFreeVars S1} {FindFreeVars S2}}
+   [] [bind ident(X) ident(Y)] then (ident(X) | ident(Y) | nil)
+   [] [bind ident(X) V] then [X]
+   [] [localvar ident(X) S] then {List.subtract {FindFreeVars S} X}
+   [] [conditional ident(X) S1 S2] then {FindUnion {FindUnion [X] {FindFreeVars S1}} {FindFreeVars S2}}
+   [] [match ident(X) P1 S1 S2] then {FindUnion {FindUnion [X] {FindFreeVars S1}} {FindFreeVars S2}} % Assuming P1 will not have any free vars
+   [] [procedure L S] then  {SubLists L S}
+   [] [record L Pairs] then {FindUnion {List.Map Pairs fun {$ X} X.2.1 end} nil}
+   else nil
+   end
+end
+
 fun {Execution}
    local Statement Environment in
       
@@ -93,8 +132,20 @@ fun {Execution}
 
          %Part 5
       [] [bind ident(X) V] then
-	 {Unify ident(X) V}
-	 {Execution}
+         case V
+         of [procedure L S] then  %Part5b
+            local FreeVars in
+               FreeVars = {List.Map {FindFreeVars Statement} fun {$ X}
+                                                                case X
+                                                                of ident(Y)
+                                                                   Y|E.Y
+                                                                end end}
+               {Unify ident(X) [procedure L S FreeVars]}
+            end
+         else
+            {Unify ident(X) V}
+         end
+         {Execution}
 	 
 	 %Part 6
       [] [conditional ident(X) S1 S2] then
@@ -115,8 +166,7 @@ fun {Execution}
 	 
 	 %Part 7
       [] [match ident(X) P1 S1 S2] then
-	 
-	 
+            
       end
    end
 end
