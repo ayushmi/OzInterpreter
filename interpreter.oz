@@ -41,8 +41,8 @@ fun {FindUnion L1 L2}
          case L1
          of nil then L2
          [] X|Xr then
-            if {List.member X L2} {FindUnion Xr L2}
-            else {FindUnion Xr X|L2}
+            if {List.member X L2} then {FindUnionHelper Xr L2}
+            else {FindUnionHelper Xr X|L2}
             end
          end
       end
@@ -59,7 +59,7 @@ end
 
 fun {FindFreeVars S }
    case S
-   of S1|S2 then {FindUnion {FindFreeVars S1} {FindFreeVars S2}}
+   of (S1|S1Left)|S2 then {FindUnion {FindFreeVars (S1|S1Left)} {FindFreeVars S2}}
    [] [bind ident(X) ident(Y)] then (ident(X) | ident(Y) | nil)
    [] [bind ident(X) V] then [X]
    [] [localvar ident(X) S] then {List.subtract {FindFreeVars S} X}
@@ -125,7 +125,7 @@ fun {Execution}
       [] [bind ident(X) ident(Y)] then
 
 	 %Call Unify
-	 {Unify ident(X) ident(Y) E}
+	 {Unify ident(X) ident(Y) Environment}
 
 	 %Continue with execution
 	 {Execution}
@@ -138,12 +138,12 @@ fun {Execution}
                FreeVars = {List.Map {FindFreeVars Statement} fun {$ X}
                                                                 case X
                                                                 of ident(Y)
-                                                                   Y|E.Y
+                                                                   then Y|Environment.Y
                                                                 end end}
-               {Unify ident(X) [procedure L S FreeVars]}
+               {Unify ident(X) [procedure L S FreeVars] Environment}
             end
          else
-            {Unify ident(X) V}
+            {Unify ident(X) V Environment}
          end
          {Execution}
 	 
@@ -152,10 +152,10 @@ fun {Execution}
 	 local Val in
 	    Val = {RetrieveFromSAS X}
 	    if Val == literal(t) then
-	       SemanticStack := {List.append [semanticStatement(S1 E)] (@SemanticStack)}
+	       SemanticStack := {List.append [semanticStatement(S1 Environment)] (@SemanticStack)}
 	    else
 	       if Val == literal(f) then
-		    SemanticStack := {List.append [semanticStatement(S2 E)] (@SemanticStack)}
+		    SemanticStack := {List.append [semanticStatement(S2 Environment)] (@SemanticStack)}
 	       else
 		  {Browse error} %Probably need to raise an exception here
 	       end
@@ -163,32 +163,26 @@ fun {Execution}
 	 end
 	 {Execution}
 
-	 
       [] [match ident(X) P1 S1 S2] then
          try
             local NewEnv AddNewIdents in
-                fun {AddNewIdents Xs Env}
-                    case Xs
-                    of nil then Env
-                    [] X|Xr then {AddNewIdents Xr {Adjoin Env env(X.2.1:{AddKeyToSAS})}} end
-                end
-                NewEnv = {AddNewIdents P1.2.2.1 E}
-                {Unify ident(X) P1 NewEnv}
-	        SemanticStack := {List.append [semanticStatement(S1 NewEnv)] (@SemanticStack)}
+               fun {AddNewIdents Xs Env}
+                  case Xs
+                  of nil then Env
+                  [] [literal(A) ident(X)]|Xr then {AddNewIdents Xr {Adjoin Env environment(X : {AddKeyToSAS})}}
+                  end
+               end
+               NewEnv = {AddNewIdents P1.2.2.1 Environment}
+               {Unify ident(X) P1 NewEnv}
+               SemanticStack := {List.append [semanticStatement(S1 NewEnv)] (@SemanticStack)}
             end
-         catch
-	    SemanticStack := {List.append [semanticStatement(S2 E)] (@SemanticStack)}
+         catch E then
+            SemanticStack := {List.append [semanticStatement(S2 Environment)] (@SemanticStack)}
          end
          {Execution}
-
-
-         end
-      end  
-	 %Part 7
-      [] [match ident(X) P1 S1 S2] then
-            
+         
       end
-   end
+   end  
 end
 
 {Browse {Execution}}
