@@ -45,4 +45,8 @@ A record. The features are the variables. The feature values are the SAS keys. (
 
 2.1 *{Unify Expression1 Expression2 Environment}* : Unify Expression1 and Expression2 given the mappings in the Environment. Unification Error will be raise an incompatibleTypes exception.
 
+3. interpreter.oz
 
+3.1 Interpreter.oz has *{Execution}* function. This function performs the execution on the semantic stack. 
+
+3.2 The *{FindFreeVars}* function is used by the *{Execution}* for finding free variables in a statement for lexical scoping.
