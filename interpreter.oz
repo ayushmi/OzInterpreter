@@ -78,20 +78,25 @@ declare StatementList
 %                                   ]
 %                 ]
 %                ]
-StatementList = [ localvar ident(x)[
-                   localvar ident(y) [
-                  localvar ident(z)   [
-                                       [bind ident(x) ident(z)]
-                                       [bind ident(y) (f)]
-                                       [conditional ident(y)
-                                          [bind ident(z) 2]
-                                          [bind ident(z) 3]
+StatementList = [ localvar ident(p) [
+                   localvar ident(x) [
+                    localvar ident(y) [
+                     localvar ident(z) [
+                                        [bind ident(x) ident(z)]
+                                        [bind ident(p)
+                                          [procedure [ident(x) ident(y)]
+                                           [
+                                            [bind ident(z) ident(y)]
+                                            %[bind ident(x) literal(2)]
+                                           ]
+                                          ]
+                                        ]
+                                       [bind ident(y) literal(1)]
+                                       [apply ident(p) ident(x) ident(y)]
                                        ]
-                                       %[bind ident(x) 1]
-                                       %[apply ident(p) ident(x) ident(y)]
                                       ]
                                      ]
-                                   ]
+                                    ]
                 ]
 %declare InitialEnvironment
 %InitialEnvironment = {Dictionary.new}
@@ -271,7 +276,7 @@ fun {Execution}
                {Browse addFormalStarted}
                case Xs
                of nil then Env
-               [] ident(X) | Xr then {AddFormal Xr {Adjoin Env environment(X : {AddKeyToSAS})}} end
+               [] ident(X) | Xr then {AddFormal Xr {Adjoin Env environment(X : Environment.X)}} end
             end
             fun {AddFreeVars Xs Env}
                {Browse addFreeVars}
