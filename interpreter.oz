@@ -49,34 +49,53 @@ declare StatementList
  %                                   ]
  %                ]
 %                ]
-StatementList = [
-                 [
+%StatementList = [
+%                 [
+%                  localvar ident(x)[
+%                                    localvar ident(a) [
+%                                                       localvar ident(b) [
+%                                                                          [bind ident(x) [record literal(name) [
+%                                                                                                                [literal(1) ident(a)]
+%                                                                                                                [literal(2) ident(b)]
+%                                                                                                               ]
+%                                                                                         ]
+%                                                                          ]
+%                                                                          [match ident(x)
+%                                                                           [record literal(name) [
+%                                                                                                  [literal(3) ident(c)]
+%                                                                                                  [literal(1) ident(d)]
+%                                                                                                 ]
+%                                                                           ]
+%                                                                           [
+%                                                                            nop
+%                                                                           ]
+%                                                                           [
+%                                                                            [nop][nop]
+%                                                                           ]
+%                                                                          ]
+%                                                                         ]
+%                                                      ]
+%                                   ]
+%                 ]
+%                ]
+StatementList = [localvar ident(p)[
                   localvar ident(x)[
-                                    localvar ident(a) [
-                                                       localvar ident(b) [
-                                                                          [bind ident(x) [record literal(name) [
-                                                                                                                [literal(1) ident(a)]
-                                                                                                                [literal(2) ident(b)]
-                                                                                                               ]
-                                                                                         ]
-                                                                          ]
-                                                                          [match ident(x)
-                                                                           [record literal(name) [
-                                                                                                  [literal(3) ident(c)]
-                                                                                                  [literal(1) ident(d)]
-                                                                                                 ]
-                                                                           ]
-                                                                           [
-                                                                            nop
-                                                                           ]
-                                                                           [
-                                                                            [nop][nop]
-                                                                           ]
-                                                                          ]
-                                                                         ]
-                                                      ]
+                   localvar ident(y) [
+                  localvar ident(z)   [
+                                       [bind ident(x) ident(z)]
+                                       [bind ident(y) 4]
+                                       [bind ident(p) 
+                                         [procedure [ident(x) ident(y)]
+                                          [[bind ident(x) 2]
+                                          [bind ident(z) ident(y)]]
+                                         ]
+                                       ]
+                                       %[bind ident(x) 1]
+                                       [apply ident(p) ident(x) ident(y)]
+                                      ]
+                                     ]
                                    ]
-                 ]
+                                  ]
                 ]
 %declare InitialEnvironment
 %InitialEnvironment = {Dictionary.new}
@@ -123,7 +142,7 @@ fun {FindFreeVars S }
    [] [conditional ident(X) S1 S2] then {FindUnion {FindUnion [ident(X)] {FindFreeVars S1}} {FindFreeVars S2}}
    [] [match ident(X) P1 S1 S2] then {FindUnion {FindUnion [ident(X)] {FindFreeVars S1}} {FindFreeVars S2}} % Assuming P1 will not have any free vars
    [] [procedure L S] then  {SubLists L {FindFreeVars S}}
-   [] [record L Pairs] then {FindUnion {List.Map Pairs fun {$ X} X.2.1 end} nil}
+   [] [record L Pairs] then {FindUnion {Map fun {$ X} X.2.1 end Pairs} nil}
    else nil
    end
 end
@@ -250,7 +269,7 @@ fun {Execution}
          end
          {Execution}
          
-      [] [apply ident(X)  L] then
+      [] apply | ident(X) | L then
          local Y AddFormal NewEnv AddFreeVars in
             fun {AddFormal Xs Env}
                {Browse addFormalStarted}
