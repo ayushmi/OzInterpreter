@@ -84,13 +84,13 @@ fun {Execution}
 	 Environment = (@SemanticStack).1.2
 	 SemanticStack := (@SemanticStack).2
       end
-      
+      {Browse Statement}
+      {Browse Environment}
       case Statement
       of nil then nil
 	 
       [] nop|nil then              %if nop then skip
-	 {Browse nop}
-	 {Execution}
+         {Execution}
 
 	 
       [] (S1|S1Left)|S2 then       %In case of S1|S2 push S2 to stack then S1 to stack
@@ -110,14 +110,12 @@ fun {Execution}
 
 	 %PART 2
       [] [localvar ident(X) S] then
-
-	 {Browse X}
 	 
 	 %Put X to the Environment
 	 % and Add Key for X to SAS
 	 % and Push S to the SemanticStack with new environment
 	 SemanticStack := {List.append [semanticStatement(S {Adjoin Environment environment(X:{AddKeyToSAS})} )] (@SemanticStack)}
-
+         
 	 %Continue with Execution
 	 {Execution}
 
@@ -157,7 +155,7 @@ fun {Execution}
 	       if Val == literal(f) then
 		    SemanticStack := {List.append [semanticStatement(S2 Environment)] (@SemanticStack)}
 	       else
-		  {Browse error} %Probably need to raise an exception here
+		  raise literalIsNotBoolean(X) end %Probably need to raise an exception here
 	       end
 	    end
 	 end
