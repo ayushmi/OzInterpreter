@@ -78,24 +78,20 @@ declare StatementList
 %                                   ]
 %                 ]
 %                ]
-StatementList = [localvar ident(p)[
-                  localvar ident(x)[
+StatementList = [ localvar ident(x)[
                    localvar ident(y) [
                   localvar ident(z)   [
                                        [bind ident(x) ident(z)]
-                                       [bind ident(y) 4]
-                                       [bind ident(p) 
-                                         [procedure [ident(x) ident(y)]
-                                          [[bind ident(x) 2]
-                                          [bind ident(z) ident(y)]]
-                                         ]
+                                       [bind ident(y) (f)]
+                                       [conditional ident(y)
+                                          [bind ident(z) 2]
+                                          [bind ident(z) 3]
                                        ]
                                        %[bind ident(x) 1]
-                                       [apply ident(p) ident(x) ident(y)]
+                                       %[apply ident(p) ident(x) ident(y)]
                                       ]
                                      ]
                                    ]
-                                  ]
                 ]
 %declare InitialEnvironment
 %InitialEnvironment = {Dictionary.new}
@@ -229,7 +225,7 @@ fun {Execution}
 	 %Part 6
       [] [conditional ident(X) S1 S2] then
 	 local Val in
-	    Val = {RetrieveFromSAS X}
+	    Val = {RetrieveFromSAS Environment.X}
 	    if Val == literal(t) then
 	       SemanticStack := {List.append [semanticStatement(S1 Environment)] (@SemanticStack)}
 	    else
