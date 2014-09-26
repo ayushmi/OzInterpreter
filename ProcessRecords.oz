@@ -60,6 +60,7 @@ fun {Canonize Pairs}
    FindPairWithKey
    Result
 in
+
    if {HasUniqueEntries SortedKeys}
    then
       %=======================

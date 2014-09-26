@@ -31,7 +31,8 @@ in
    %=================
    fun {SubstituteIdentifiers Exp Env}
       case Exp
-      of H|T then  
+      of [procedure A B C] then Exp 
+	  [] H|T then  
 	 {SubstituteIdentifiers H Env}|{SubstituteIdentifiers T Env}
       [] ident(X) then {RetrieveFromSAS Env.X}
       else Exp end
@@ -77,10 +78,12 @@ in
 	    else raise incompatibleTypes(Exp1 Exp2) end
 	    end
 	 [] record | L | Pairs1 then % not label(L)
+		{Browse [Exp1 Exp2 !L]} 
 	    case Exp2
 	    of equivalence(_) then
 	       {UnifyRecursive Exp2 Exp1 Unifications}
 	    [] record|!L|Pairs2 then % recursively unify
+			{Browse reached}
 	       Canon1 = {Canonize Pairs1.1}
 	       Canon2 = {Canonize Pairs2.1}
 	    in
@@ -93,7 +96,7 @@ in
 		end
 		_}
 	    else raise incompatibleTypes(Exp1 Exp2) end
-	    end %
+	    end % 
 	 else
 	    raise incompatibleTypes(Exp1 Exp2) end
 	 end

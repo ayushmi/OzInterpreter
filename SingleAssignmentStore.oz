@@ -44,7 +44,7 @@ fun {AddKeyToSAS}
       {Cell.access SASCounter CurrentCounter} 
       {Dictionary.put SAS CurrentCounter equivalence(CurrentCounter)}
       {Cell.assign SASCounter CurrentCounter + 1}
-      CurrentCounter + 1
+      CurrentCounter 
    end
 end
 

@@ -12,15 +12,72 @@
 %SemanticStack is a list of pairs of Statement and Environment.
 declare 
 SemanticStack = {NewCell nil}
+declare Map
+declare FoldR
+fun {FoldR F Xs Partial}
+   case Xs
+   of nil then Partial
+    [] X|Xr then {F X {FoldR F Xr Partial}}
+   end
+end
+fun {Map F Xs}
+   {FoldR fun{$ A B} {F A}|B end Xs nil}
+end
 
 declare StatementList
 %StatementList = [[nop] [nop] [nop]]
 %StatementList = [[nop] [localvar ident(x) [localvar ident(y) [nop]]]]
-StatementList = [[nop] [localvar ident(x)
-       [localvar ident(y)
-              [localvar ident(x)
-	       [nop]]]]]
-
+%StatementList = [[nop] [localvar ident(x)
+%       [localvar ident(y)
+%              [localvar ident(x)
+%	       [nop]]]]]
+%StatementList = [
+%                 [localvar ident(x) [localvar ident(g) [localvar ident(e) [
+%                                                                           [bind ident(x)
+%                                                                            [procedure [ident(t)]
+ %                                                                            [
+ %                                                                             [localvar ident(z) [
+ %                                                                                                 [bind ident(g) literal(2)]
+ %                                                                                                ]
+ %                                                                             ]
+ %                                                                            ]
+ %                                                                           ]
+ %                                                                          ]
+ %                                                                          [apply ident(x) ident(e)]
+ %                                                                         ]
+ %                                                      ]
+ %                                   ]
+ %                ]
+%                ]
+StatementList = [
+                 [
+                  localvar ident(x)[
+                                    localvar ident(a) [
+                                                       localvar ident(b) [
+                                                                          [bind ident(x) [record literal(name) [
+                                                                                                                [literal(1) ident(a)]
+                                                                                                                [literal(2) ident(b)]
+                                                                                                               ]
+                                                                                         ]
+                                                                          ]
+                                                                          [match ident(x)
+                                                                           [record literal(name) [
+                                                                                                  [literal(3) ident(c)]
+                                                                                                  [literal(1) ident(d)]
+                                                                                                 ]
+                                                                           ]
+                                                                           [
+                                                                            nop
+                                                                           ]
+                                                                           [
+                                                                            [nop][nop]
+                                                                           ]
+                                                                          ]
+                                                                         ]
+                                                      ]
+                                   ]
+                 ]
+                ]
 %declare InitialEnvironment
 %InitialEnvironment = {Dictionary.new}
 
@@ -61,11 +118,11 @@ fun {FindFreeVars S }
    case S
    of (S1|S1Left)|S2 then {FindUnion {FindFreeVars (S1|S1Left)} {FindFreeVars S2}}
    [] [bind ident(X) ident(Y)] then (ident(X) | ident(Y) | nil)
-   [] [bind ident(X) V] then [X]
-   [] [localvar ident(X) S] then {List.subtract {FindFreeVars S} X}
-   [] [conditional ident(X) S1 S2] then {FindUnion {FindUnion [X] {FindFreeVars S1}} {FindFreeVars S2}}
-   [] [match ident(X) P1 S1 S2] then {FindUnion {FindUnion [X] {FindFreeVars S1}} {FindFreeVars S2}} % Assuming P1 will not have any free vars
-   [] [procedure L S] then  {SubLists L S}
+   [] [bind ident(X) V] then {FindUnion {FindFreeVars V} [ident(X)]}
+   [] [localvar ident(X) S] then {List.subtract {FindFreeVars S} ident(X)}
+   [] [conditional ident(X) S1 S2] then {FindUnion {FindUnion [ident(X)] {FindFreeVars S1}} {FindFreeVars S2}}
+   [] [match ident(X) P1 S1 S2] then {FindUnion {FindUnion [ident(X)] {FindFreeVars S1}} {FindFreeVars S2}} % Assuming P1 will not have any free vars
+   [] [procedure L S] then  {SubLists L {FindFreeVars S}}
    [] [record L Pairs] then {FindUnion {List.Map Pairs fun {$ X} X.2.1 end} nil}
    else nil
    end
@@ -133,12 +190,17 @@ fun {Execution}
          case V
          of [procedure L S] then  %Part5b
             local FreeVars in
-               FreeVars = {List.Map {FindFreeVars Statement} fun {$ X}
-                                                                case X
-                                                                of ident(Y)
-                                                                   then Y|Environment.Y
-                                                                end end}
+               FreeVars = {Map fun {$ X}
+                                                                      {Browse X}
+                                                                      case X
+                                                                      of ident(Y)
+                                                                      then [Y Environment.Y]
+                                                                      end end
+                           {SubLists L {FindFreeVars S}}
+                          }
+               {Browse FreeVars}
                {Unify ident(X) [procedure L S FreeVars] Environment}
+               {Browse unifyDone}
             end
          else
             {Unify ident(X) V Environment}
@@ -170,31 +232,44 @@ fun {Execution}
                   [] [literal(A) ident(X)]|Xr then {AddNewIdents Xr {Adjoin Env environment(X : {AddKeyToSAS})}}
                   end
                end
-               NewEnv = {AddNewIdents P1.2.2.1 Environment}
+               case P1 of [record L Pairs] then
+                  NewEnv = {AddNewIdents Pairs Environment}
+               end
+               {Browse [newEnv NewEnv]}
                {Unify ident(X) P1 NewEnv}
                SemanticStack := {List.append [semanticStatement(S1 NewEnv)] (@SemanticStack)}
+               {Browse notCaught}
+               
             end
          catch E then
+            {Browse caught}
+            
             SemanticStack := {List.append [semanticStatement(S2 Environment)] (@SemanticStack)}
+           
+            
          end
          {Execution}
          
-      [] [apply ident(X) | L] then
+      [] [apply ident(X)  L] then
          local Y AddFormal NewEnv AddFreeVars in
             fun {AddFormal Xs Env}
+               {Browse addFormalStarted}
                case Xs
                of nil then Env
                [] ident(X) | Xr then {AddFormal Xr {Adjoin Env environment(X : {AddKeyToSAS})}} end
             end
             fun {AddFreeVars Xs Env}
+               {Browse addFreeVars}
                case Xs
                of nil then Env
                [] [X Y]|Xr then {AddFreeVars Xr {Adjoin Env environment(X : Y)}} end
             end
             Y = {RetrieveFromSAS Environment.X}
+            {Browse [gotY Y]}
             case Y
             of [procedure L S FreeVars] then
-              NewEnv = {Adjoin {AddFormal L Environment} {AddFreeVars FreeVars nil}}
+              NewEnv = {Adjoin {AddFormal L nil} {AddFreeVars FreeVars nil}}
+               {Browse [newEnv NewEnv]}
               SemanticStack := {List.append [semanticStatement(S NewEnv)] (@SemanticStack)}
             else
               raise functionNotDefined(X) end
@@ -206,3 +281,4 @@ fun {Execution}
 end
 
 {Browse {Execution}}
+{Browse over}
