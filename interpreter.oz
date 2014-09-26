@@ -295,6 +295,7 @@ fun {Execution}
             end
          end
          {Execution}
+      else raise syntaxError(Statement) end
       end
    end  
 end
