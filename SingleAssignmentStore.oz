@@ -32,7 +32,7 @@ proc {BindValueToKeyInSAS Key Val}
 end
 
 proc {BindRefToKeyInSAS Key RefKey}
-    {Dictionary.put Key reference(RefKey)}
+    {Dictionary.put SAS Key reference(RefKey)}
 end
 
 %================

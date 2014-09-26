@@ -181,6 +181,28 @@ fun {Execution}
          end
          {Execution}
          
+      [] [apply ident(X) | L] then
+         local Y AddFormal NewEnv AddFreeVars in
+            fun {AddFormal Xs Env}
+               case Xs
+               of nil then Env
+               [] ident(X) | Xr then {AddFormal Xr {Adjoin Env environment(X : {AddKeyToSAS})}} end
+            end
+            fun {AddFreeVars Xs Env}
+               case Xs
+               of nil then Env
+               [] [X Y]|Xr then {AddFreeVars Xr {Adjoin Env environment(X : Y)}} end
+            end
+            Y = {RetrieveFromSAS Environment.X}
+            case Y
+            of [procedure L S FreeVars] then
+              NewEnv = {Adjoin {AddFormal L Environment} {AddFreeVars FreeVars nil}}
+              SemanticStack := {List.append [semanticStatement(S NewEnv)] (@SemanticStack)}
+            else
+              raise functionNotDefined(X) end
+            end
+         end
+         {Execution}
       end
    end  
 end
